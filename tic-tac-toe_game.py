@@ -5,47 +5,38 @@ import os
 
 def title_line():
     """Displays a line with the game title"""
-    # clearing the screen and print the game title
-    os.system('cls||clear')  # clearing the screen
-    print("\033[32m\n", "*" * 10, "Игра в крестики-нолики", "*" * 10, "\n\n\n\033[37m")
+    os.system('cls||clear')
+    print("\n", "*" * 10, "Игра в крестики-нолики", "*" * 10, "\n\n\n")
 
 
 def welcome_screen():
     """Displays the welcome screen. Registers players"""
     while True:
-        # clearing the screen and print the game title
         title_line()
 
-        # entering player names
         name_player1 = input(" Первый игрок введите свое имя:\n ")
         name_player2 = input(" Второй игрок введите свое имя:\n ")
 
         if name_player1 == name_player2:
             title_line()
             print(" Имена играков должны отличатся\n\n ")
-            # Stopping the system
             os.system("pause")  # Works on Windows
-            os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')  # Works on Linux and MacOS
+            os.system('read -sn 1 -p "Press any key to continue..."')  # Works on Linux and MacOS
         else:
             break
 
-    # clearing the screen and print the game title
     title_line()
-    # welcome players
     print(f" Привет {name_player1} и {name_player2} начнем игру\n\n\n  ")
-    # Stopping the system
-    os.system("pause")  # Works on Windows
-    os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')  # Works on Linux and MacOS
+    os.system("pause")
+    os.system('read -sn 1 -p "Press any key to continue..."')
 
     return name_player1, name_player2
 
 
 def print_board(board):
     """Printing the playing field"""
-    # clearing the screen and print the game title
     title_line()
 
-    # Printing the playing field
     print("", "-" * 13)
     for i in range(3):
         print(" |", board[0 + i * 3], "|", board[1 + i * 3], "|", board[2 + i * 3], "|")
@@ -55,20 +46,17 @@ def print_board(board):
 def player_move(board, move):
     """ Рrocessing a player's move recorded in a string"""
     while True:
-        global ability_cancel_move, number_old
+        global ability_cancel_move, number
 
-        # clearing the screen and print the game title
         title_line()
-        # print the game board
         print_board(board)
 
-        # choosing a walking player
         if move % 2 == 1:
-            print(f"\033[31m\n\n Ходит игрок {name_player1}\n"
-                  f"\n\033[37m")
+            print(f"\n\n Ходит игрок {name_player1}\n"
+                  f"\n")
         else:
-            print(f"\033[31m\n\n Ходит игрок {name_player2}\n"
-                  f"\n\033[37m")
+            print(f" Ходит игрок {name_player2}\n"
+                  f"\n")
 
         number = input(" Введите номер клетки, для вызова справки введите help: ")
 
@@ -77,52 +65,30 @@ def player_move(board, move):
             continue
 
         if number == "cancel":
-            ability_cancel_move, move = cancel_move(board, ability_cancel_move, number_old)
+            cancel_move(move, board, number, ability_cancel_move)
             continue
 
-        # checking that an integer is entered
-        if not number.isdigit():
-            title_line()
-            print('\033[31m Введите целое число от 1 до 9\n\n\n \033[37m')
-            os.system("pause")
-            os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')
-            continue
-        elif number.find(".") != -1:
-            title_line()
-            print('\033[31m Введите целое число от 1 до 9\n\n\n \033[37m')
-            os.system("pause")
-            os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')
-            continue
-
-        # checking possible unaccounted errors
         try:
             number = int(number)
-        except ValueError:
-            title_line()
-            print('\033[31m Введите целое число от 1 до 9\n\n\n \033[37m')
+        except TypeError:
+            print(' Число должно быть целыми от 1 до 9\n\n\n ')
             os.system("pause")
-            os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')
+            os.system('read -sn 1 -p "Press any key to continue..."')
             continue
 
-        # checking that the number falls within the board limits
-        if (1 > number) or (number > 9):
+        if 1 > number > 9:
             title_line()
-            print('\033[31m Число должно быть целыми от 1 до 9\n\n\n \033[37m')
+            print(' Число должно быть целыми от 1 до 9\n\n\n ')
             os.system("pause")
-            os.system('read -sn 1 -p " Для продолжения нажмите любую клавишу..."')
+            os.system('read -sn 1 -p " Press any key to continue..."')
             continue
 
-        # checking that the field is not occupied
         if str(board[number - 1]) in "XO":
-            print("\n\n\033[31m Данное поле занято\n\033[37m")
+            print(" Данное поле занято\n\n\n")
             os.system("pause")
-            os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')
+            os.system('read -sn 1 -p "Press any key to continue..."')
             continue
 
-        # remember the number for the possibility of canceling the move
-        number_old = number
-
-        # put a cross or a zero in the selected field
         if move % 2 == 1:
             board[number - 1] = "X"
             ability_cancel_move = True
@@ -134,17 +100,15 @@ def player_move(board, move):
             move += 1
             break
 
-    return board
+    return board, number
 
 
 def check_winner(board):
     """Сhecking for a winner"""
-    # creating a tuple of possible winning options
     win_coord = ((0, 1, 2), (3, 4, 5), (6, 7, 8), (1, 4, 7),
                  (0, 3, 6), (2, 5, 8), (0, 4, 8), (2, 4, 6))
-    # check if there is no winner
     for i in win_coord:
-        if board[i[2]] == board[i[0]] == board[i[1]]:
+        if board[i[0]] == board[i[1]] == board[i[2]]:
             return True
     return False
 
@@ -153,8 +117,8 @@ def ask():
     """Сhecking if they want to play again"""
     title_line()
     answer = input(f" Сыграем ещё?\n"
-                   f" введите y или yes для повторной игры: ")
-    if answer == "y" or answer == "yes":
+                   f" введите y или n:")
+    if answer == "y":
         return True
     else:
         return False
@@ -162,15 +126,14 @@ def ask():
 
 def help_user():
     """Сalling the game help"""
-    # clearing the screen and print the game title
     title_line()
-    print(" \033[31mПравила игры:\n\033[37m"
+    print(" Правила игры:\n"
           " Игроки по очереди ставят на свободные клетки поля 3х3 \n"
           " знаки (один всегда крестики, другой всегда нолики). \n"
           " Первый, выстроивший в ряд 3 своих фигуры по вертикали, \n"
           " горизонтали или диагонали, выигрывает. \n"
           " Первый ход делает игрок, ставящий крестики.\n\n"
-          " \033[31mПоле состоит из полей пронумерованных от 1 до 9\n\n\033[37m"
+          " Поле состоит из полей пронумерованных от 1 до 9\n\n"
           " -------------\n"
           " | 1 | 2 | 3 |\n"
           " -------------\n"
@@ -178,87 +141,74 @@ def help_user():
           " -------------\n"
           " | 7 | 8 | 9 |\n"
           " -------------\n\n\n")
-    # Stopping the system
-    os.system("pause")  # Works on Windows
-    os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')  # Works on Linux and MacOS
+    os.system("pause")
+    os.system('read -sn 1 -p "Press any key to continue..."')
 
-    # clearing the screen and print the game title
     title_line()
     print(" Игроки по очереди вводят номера свободных полей\n\n"
-          " \033[31mПример:\n\n\033[37m"
+          " Пример:\n\n"
           " Введите номер клетки, для вызова справки введите help: 1\n\n"
           " -------------\n"
-          " |\033[31m X \033[37m| 2 | 3 |\n"
+          " | X | 2 | 3 |\n"
           " -------------\n"
           " | 4 | 5 | 6 |\n"
           " -------------\n"
           " | 7 | 8 | 9 |\n"
           " -------------\n\n\n")
-    # Stopping the system
-    os.system("pause")  # Works on Windows
-    os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')  # Works on Linux and MacOS
+    os.system("pause")
+    os.system('read -sn 1 -p "Press any key to continue..."')
 
-    # clearing the screen and print the game title
     title_line()
     print(" Для отмены хода требуется ввести cancel\n"
           " Отменить можно только один последний ход\n\n"
-          "\033[31m Пример:\n\n\033[37m"
+          " Пример:\n\n"
           " Введите номер клетки, для вызова справки введите help: cancel\n\n"
           " -------------\n"
-          " |\033[31m 1 \033[37m| 2 | 3 |\n"
+          " | 1 | 2 | 3 |\n"
           " -------------\n"
           " | 4 | 5 | 6 |\n"
           " -------------\n"
           " | 7 | 8 | 9 |\n"
           " -------------\n\n\n")
-    # Stopping the system
-    os.system("pause")  # Works on Windows
-    os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')  # Works on Linux and MacOS
+    os.system("pause")
+    os.system('read -sn 1 -p "Press any key to continue..."')
 
 
-def cancel_move(board, ability_cancel_move, number_old):
+def cancel_move(move, board, number, ability_cancel_move):
     """Canceling the last move"""
-    global move
-
     if ability_cancel_move:
         move -= 1
-        board[number_old - 1] = str(number_old)
-        ability_cancel_move = False
-        return ability_cancel_move, move
+        board[number - 1] = str(number)
     else:
-        title_line()
-        print("\033[31m Отмена более одного хода запрещена.\n\n\n\033[37m")
-        os.system("pause")
-        os.system('read -sn 1 -p " Для продолжения нажмите любую клавишу..."')
+        print(" Отмена более одного хода запрещена.")
 
 
 name_player1, name_player2 = welcome_screen()
 
 while True:
-    # generate a clean playing field and reset the moves
     board = list(range(1, 10))
     ability_cancel_move = False
     move = 0
 
     while True:
+        title_line()
+        print_board(board)
         move += 1
+
         board = player_move(board, move)
 
-        if check_winner(board):  # checking for a winner
+        if check_winner(board):
             title_line()
             print_board(board)
-            print(f"\033[31m\n\n Победил {name_player1}\n\n\033[37m") \
-                if move % 2 == 1 else print(f"\033[31m\n\n Победил {name_player2}\n\n\033[37m")
-            os.system("pause")
-            os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')
+            print(f" Победил {name_player1}") if move % 2 == 1 else print(f" Победил {name_player2}")
             break
 
         if move == 9:
             title_line()
             print_board(board)
-            print("\033[31m\n\n Ничья!!!\n\n \033[37m")
+            print(" Ничья!!!\n\n ")
             os.system("pause")
-            os.system('read -sn 1 -p "Для продолжения нажмите любую клавишу..."')
+            os.system('read -sn 1 -p "Press any key to continue..."')
             break
 
     if ask():
